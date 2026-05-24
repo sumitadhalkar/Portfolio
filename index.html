@@ -21,18 +21,24 @@
     }
     body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
 
-    /* Animated dot-grid background */
-    body::before {
-      content: '';
-      position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      background-image: radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px);
-      background-size: 32px 32px;
-      animation: gridDrift 20s linear infinite;
+    /* Canvas particle background */
+    #particleCanvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+    /* Scroll progress bar */
+    #scrollProgress {
+      position: fixed; top: 0; left: 0; height: 2px; width: 0%;
+      background: linear-gradient(90deg, #fff 0%, rgba(255,255,255,0.4) 100%);
+      z-index: 999; box-shadow: 0 0 10px rgba(255,255,255,0.5);
+      transition: width 0.08s linear;
     }
-    @keyframes gridDrift {
-      0%   { background-position: 0 0; }
-      100% { background-position: 32px 32px; }
+
+    /* Typing cursor */
+    .typed-cursor {
+      display: inline-block; width: 2px; height: 0.9em; background: #fff;
+      margin-left: 2px; vertical-align: middle;
+      animation: blink 1s step-end infinite;
     }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
 
     /* Scrolling glow sweep on hero */
     @keyframes sweep {
@@ -249,6 +255,9 @@
 </head>
 <body>
 
+<canvas id="particleCanvas"></canvas>
+<div id="scrollProgress"></div>
+
 <nav id="navbar">
   <div class="nav-inner">
     <a href="#home" class="nav-logo">
@@ -263,7 +272,7 @@
       <li><a href="#certs">Certifications</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
-    <a href="#" class="btn-resume">Resume <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg></a>
+    <a href="Sumit%20Resume.docx" target="_blank" rel="noopener noreferrer" class="btn-resume">Resume <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg></a>
   </div>
 </nav>
 
@@ -271,7 +280,7 @@
   <div class="hero-inner">
     <div class="hero-badge"><div class="dot"></div><span>OPEN TO INTERNSHIP OPPORTUNITIES</span></div>
     <h1 class="hero-name">Sumit Adhalkar</h1>
-    <p class="hero-sub">AI &amp; ML Engineering Student <span class="accent">&amp;</span> Developer</p>
+    <p class="hero-sub">AI &amp; ML Engineering Student <span class="accent">&amp;</span> <span id="typedText"></span><span class="typed-cursor"></span></p>
     <p class="hero-desc">Building intelligent systems — from NLP pipelines to full-stack AI applications. Passionate about data-driven solutions that work in the real world.</p>
     <div class="hero-socials">
       <a href="https://in.linkedin.com/in/sumit-adhalkar-172357367" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="LinkedIn">
@@ -304,10 +313,10 @@
         </div>
       </div>
       <div class="stats-grid">
-        <div class="stat-card"><div class="stat-num">3</div><div class="stat-lbl">Projects Built</div></div>
-        <div class="stat-card"><div class="stat-num">3</div><div class="stat-lbl">Certifications</div></div>
-        <div class="stat-card"><div class="stat-num">2027</div><div class="stat-lbl">Graduating</div></div>
-        <div class="stat-card"><div class="stat-num">6+</div><div class="stat-lbl">Core Technologies</div></div>
+        <div class="stat-card"><div class="stat-num" data-target="3">0</div><div class="stat-lbl">Projects Built</div></div>
+        <div class="stat-card"><div class="stat-num" data-target="3">0</div><div class="stat-lbl">Certifications</div></div>
+        <div class="stat-card"><div class="stat-num" data-target="2027" data-suffix="">0</div><div class="stat-lbl">Graduating</div></div>
+        <div class="stat-card"><div class="stat-num" data-target="6" data-suffix="+">0</div><div class="stat-lbl">Core Technologies</div></div>
       </div>
     </div>
     <div class="approach-section">
@@ -522,14 +531,15 @@
             <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
             <h3>Send Transmission</h3>
           </div>
-          <form class="contact-form" onsubmit="return false;">
+          <form class="contact-form" id="contactForm">
             <div class="form-row">
-              <div class="form-group"><label>Name</label><input type="text" placeholder="John Doe"></div>
-              <div class="form-group"><label>Email</label><input type="email" placeholder="john@example.com"></div>
+              <div class="form-group"><label>Name</label><input type="text" name="from_name" placeholder="John Doe" required></div>
+              <div class="form-group"><label>Email</label><input type="email" name="reply_to" placeholder="john@example.com" required></div>
             </div>
-            <div class="form-group"><label>Subject</label><input type="text" placeholder="Internship Inquiry"></div>
-            <div class="form-group"><label>Message</label><textarea placeholder="How can I help you?"></textarea></div>
-            <button type="submit" class="btn-send">Send Transmission <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button>
+            <div class="form-group"><label>Subject</label><input type="text" name="subject" placeholder="Internship Inquiry" required></div>
+            <div class="form-group"><label>Message</label><textarea name="message" placeholder="How can I help you?" required></textarea></div>
+            <div id="formMsg" style="display:none;padding:0.75rem 1rem;border-radius:8px;font-size:0.875rem;font-weight:500;margin-bottom:0.5rem;"></div>
+            <button type="submit" class="btn-send" id="sendBtn">Send Transmission <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button>
           </form>
         </div>
       </div>
@@ -547,19 +557,176 @@
       <div class="footer-links">
         <a href="#home">Home</a><a href="#about">About</a><a href="#projects">Projects</a><a href="#contact">Contact</a>
       </div>
-      <div class="footer-copy"><p>© 2025 Sumit Adhalkar. All rights reserved.</p></div>
+      <div class="footer-copy"><p>© 2026 Sumit Adhalkar. All rights reserved.</p></div>
     </div>
     <div class="footer-bottom">Made with <span style="color:#ef4444">❤</span> &amp; Code</div>
   </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
+  // ── Navbar scroll ────────────────────────────────────────────────────────
   const navbar = document.getElementById('navbar');
-  window.addEventListener('scroll', () => { navbar.classList.toggle('scrolled', window.scrollY > 50); });
+  const progressBar = document.getElementById('scrollProgress');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 50);
+    const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+    progressBar.style.width = pct + '%';
+  });
+
+  // ── Reveal on scroll ─────────────────────────────────────────────────────
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
   }, { threshold: 0.1 });
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // ── Particle canvas ───────────────────────────────────────────────────────
+  (function () {
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [], W, H;
+
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+
+    function Particle() {
+      this.x  = Math.random() * W;
+      this.y  = Math.random() * H;
+      this.vx = (Math.random() - 0.5) * 0.35;
+      this.vy = (Math.random() - 0.5) * 0.35;
+      this.r  = Math.random() * 1.2 + 0.4;
+      this.o  = Math.random() * 0.45 + 0.08;
+    }
+    Particle.prototype.update = function () {
+      this.x += this.vx; this.y += this.vy;
+      if (this.x < 0 || this.x > W) this.vx *= -1;
+      if (this.y < 0 || this.y > H) this.vy *= -1;
+    };
+    Particle.prototype.draw = function () {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,' + this.o + ')';
+      ctx.fill();
+    };
+
+    function init() {
+      resize();
+      const count = Math.min(Math.floor((W * H) / 12000), 120);
+      particles = Array.from({ length: count }, () => new Particle());
+    }
+
+    function drawLines() {
+      const max = 130;
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const d  = Math.sqrt(dx * dx + dy * dy);
+          if (d < max) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = 'rgba(255,255,255,' + (0.07 * (1 - d / max)) + ')';
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    window.addEventListener('resize', init);
+    init();
+
+    (function loop() {
+      ctx.clearRect(0, 0, W, H);
+      particles.forEach(p => { p.update(); p.draw(); });
+      drawLines();
+      requestAnimationFrame(loop);
+    })();
+  })();
+
+  // ── Typing animation ──────────────────────────────────────────────────────
+  (function () {
+    const words  = ['Developer', 'Builder', 'ML Engineer', 'Problem Solver', 'Researcher'];
+    const el     = document.getElementById('typedText');
+    let wi = 0, ci = 0, deleting = false;
+
+    function tick() {
+      const word = words[wi];
+      if (!deleting) { ci++; } else { ci--; }
+      el.textContent = word.slice(0, ci);
+      let delay = deleting ? 50 : 90;
+      if (!deleting && ci >= word.length) { deleting = true; delay = 1600; }
+      else if (deleting && ci <= 0)       { deleting = false; wi = (wi + 1) % words.length; ci = 0; delay = 400; }
+      setTimeout(tick, delay);
+    }
+    setTimeout(tick, 800);
+  })();
+
+  // ── Animated counters ─────────────────────────────────────────────────────
+  (function () {
+    const els = document.querySelectorAll('.stat-num[data-target]');
+    const counterObs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const el     = entry.target;
+        const target = +el.dataset.target;
+        const suffix = el.dataset.suffix !== undefined ? el.dataset.suffix : '';
+        const dur    = target > 100 ? 1800 : 900;
+        const step   = 16;
+        const inc    = target / (dur / step);
+        let current  = 0;
+        const t = setInterval(() => {
+          current = Math.min(current + inc, target);
+          el.textContent = Math.floor(current) + suffix;
+          if (current >= target) clearInterval(t);
+        }, step);
+        counterObs.unobserve(el);
+      });
+    }, { threshold: 0.5 });
+    els.forEach(el => counterObs.observe(el));
+  })();
+
+  // ── EmailJS ──────────────────────────────────────────────────────────────
+  emailjs.init({ publicKey: 'qgg56mQMe3v-JxJbd' });
+
+  document.getElementById('contactForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const form = e.target;
+    const btn  = document.getElementById('sendBtn');
+    const msg  = document.getElementById('formMsg');
+
+    const arrowSVG = '<svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" width="16" height="16"><path d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>';
+
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+
+    const templateParams = {
+      from_name: form.querySelector('[name="from_name"]').value.trim(),
+      reply_to:  form.querySelector('[name="reply_to"]').value.trim(),
+      subject:   form.querySelector('[name="subject"]').value.trim(),
+      message:   form.querySelector('[name="message"]').value.trim(),
+    };
+
+    emailjs.send('service_l3457ae', 'template_h9zbanb', templateParams)
+      .then(() => {
+        msg.style.cssText = 'display:block;padding:.75rem 1rem;border-radius:8px;font-size:.875rem;font-weight:500;margin-bottom:.5rem;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.3);color:#4ade80;';
+        msg.textContent = '✓ Transmission sent! I\'ll get back to you soon.';
+        form.reset();
+        btn.disabled = false;
+        btn.innerHTML = 'Send Transmission ' + arrowSVG;
+        setTimeout(() => { msg.style.display = 'none'; }, 5000);
+      })
+      .catch((err) => {
+        console.error('EmailJS error:', err);
+        msg.style.cssText = 'display:block;padding:.75rem 1rem;border-radius:8px;font-size:.875rem;font-weight:500;margin-bottom:.5rem;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);color:#f87171;';
+        msg.textContent = '✗ Failed to send. Please email directly at sumit.adhalkar213@gmail.com';
+        btn.disabled = false;
+        btn.innerHTML = 'Send Transmission ' + arrowSVG;
+      });
+  });
 </script>
 </body>
 </html>
